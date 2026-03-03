@@ -37,7 +37,11 @@
                                                         <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds = true" value="YES"/>
                                                     </userDefinedRuntimeAttributes>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MrF-CT-vSp">
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dfU-TF-R2e">
+                                                    <rect key="frame" x="24" y="176.33333333333334" width="85" height="15.666666666666657"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </view>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="3 March 2026" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MrF-CT-vSp">
                                                     <rect key="frame" x="20" y="172" width="129" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -68,15 +72,20 @@
                                                 <constraint firstItem="rEw-8h-xf7" firstAttribute="top" secondItem="w9D-H8-J8z" secondAttribute="top" id="GB5-Dy-fXm"/>
                                                 <constraint firstItem="w9D-H8-J8z" firstAttribute="top" secondItem="kBr-s4-GYl" secondAttribute="top" constant="4" id="HsW-Nv-X0r"/>
                                                 <constraint firstItem="w9D-H8-J8z" firstAttribute="bottom" secondItem="MrF-CT-vSp" secondAttribute="bottom" constant="8" id="Qbh-SD-dwA"/>
+                                                <constraint firstItem="dfU-TF-R2e" firstAttribute="trailing" secondItem="MrF-CT-vSp" secondAttribute="trailing" id="SPo-1L-wdU"/>
+                                                <constraint firstItem="dfU-TF-R2e" firstAttribute="bottom" secondItem="MrF-CT-vSp" secondAttribute="bottom" id="YX1-IV-04o"/>
+                                                <constraint firstItem="dfU-TF-R2e" firstAttribute="leading" secondItem="MrF-CT-vSp" secondAttribute="leading" id="c8g-vW-arL"/>
                                                 <constraint firstAttribute="bottom" secondItem="w9D-H8-J8z" secondAttribute="bottom" constant="4" id="crf-gn-Udo"/>
                                                 <constraint firstAttribute="trailing" secondItem="w9D-H8-J8z" secondAttribute="trailing" constant="16" id="ice-aT-3Ow"/>
                                                 <constraint firstItem="rEw-8h-xf7" firstAttribute="trailing" secondItem="w9D-H8-J8z" secondAttribute="trailing" id="poR-1I-8jJ"/>
+                                                <constraint firstItem="dfU-TF-R2e" firstAttribute="top" secondItem="MrF-CT-vSp" secondAttribute="top" id="q9r-0F-doV"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.1019607843" green="0.1058823529" blue="0.1333333333" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
                                             <outlet property="cellImage" destination="w9D-H8-J8z" id="Xlg-D7-beK"/>
                                             <outlet property="dateLabel" destination="MrF-CT-vSp" id="UCO-Hf-zwz"/>
+                                            <outlet property="gradientContainerView" destination="dfU-TF-R2e" id="LVA-Zh-abS"/>
                                             <outlet property="likeButton" destination="rEw-8h-xf7" id="oRw-hG-IML"/>
                                         </connections>
                                     </tableViewCell>

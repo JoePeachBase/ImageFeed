@@ -1,9 +1,39 @@
 import Foundation
 
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
+}
+
 final class OAuth2Service {
     static let shared = OAuth2Service()
+    private let decoder = JSONDecoder()
     
     private init() {}
+    
+    func fetchOAuthToken(code: String, handler: @escaping (Result<String, Error>) -> Void) {
+        guard let request = makeOAuthTokenRequest(code: code) else { return }
+        
+        let task = URLSession.shared.data(for: request) { result in
+            switch result {
+            case .success(let data):
+                do {
+                    let OAuthToken = try self.decoder.decode(OAuthTokenResponseBody.self, from: data)
+                    OAuth2TokenStorage.shared.token = OAuthToken.accessToken
+                    handler(.success(OAuthToken.accessToken))
+                } catch {
+                    print(error)
+                    handler(.failure(error))
+                }
+            case .failure(let error):
+                print(error)
+                handler(.failure(error))
+            }
+        }
+        task.resume()
+    }
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token") else {
@@ -23,30 +53,8 @@ final class OAuth2Service {
         }
         
         var request = URLRequest(url: authTokenUrl)
-        request.httpMethod = "POST"
+        request.httpMethod = HTTPMethod.post.rawValue
         return request
-    }
-    
-    func fetchOAuthToken(code: String, handler: @escaping (Result<String, Error>) -> Void) {
-        guard let request = makeOAuthTokenRequest(code: code) else { return }
-        
-        let task = URLSession.shared.data(for: request) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let OAuthToken = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-                    OAuth2TokenStorage.shared.token = OAuthToken.accessToken
-                    handler(.success(OAuthToken.accessToken))
-                } catch {
-                    print(error)
-                    handler(.failure(error))
-                }
-            case .failure(let error):
-                print(error)
-                handler(.failure(error))
-            }
-        }
-        task.resume()
     }
 }
 

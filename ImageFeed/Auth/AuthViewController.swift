@@ -1,4 +1,5 @@
 import UIKit
+import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
@@ -37,17 +38,35 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        UIBlockingProgressHUD.show()
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
             guard let self else { return }
             
             switch result {
             case .success:
                 self.delegate?.didAuthenticate(self)
             case .failure:
-                // TODO [Sprint 11] Добавьте обработку ошибки
+                showAlertWith(
+                    title: "Что-то пошло не так",
+                    message: "Не удалось войти в систему",
+                    buttonTitle: "Ок")
                 break
             }
         }
+    }
+    
+    private func showAlertWith(title: String, message: String, buttonTitle: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert)
+        let action = UIAlertAction(
+            title: buttonTitle,
+            style: .default)
+        
+        alert.addAction(action)
+        present(alert, animated: true)
     }
 
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {

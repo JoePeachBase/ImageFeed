@@ -60,6 +60,7 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(hex: 0x1A1B22)
         setupLayout()
         setupConstraints()
         if let profile = ProfileService.shared.profile {

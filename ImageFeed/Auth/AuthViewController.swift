@@ -50,20 +50,24 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 showAlertWith(
                     title: "Что-то пошло не так",
                     message: "Не удалось войти в систему",
-                    buttonTitle: "Ок")
+                    buttonTitle: "Ок") { [weak vc] in
+                        vc?.navigationController?.popViewController(animated: true)
+                    }
                 break
             }
         }
     }
     
-    private func showAlertWith(title: String, message: String, buttonTitle: String) {
+    private func showAlertWith(title: String, message: String, buttonTitle: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(
             title: title,
             message: message,
             preferredStyle: .alert)
         let action = UIAlertAction(
             title: buttonTitle,
-            style: .default)
+            style: .default) { _ in
+                completion?()
+            }
         
         alert.addAction(action)
         present(alert, animated: true)

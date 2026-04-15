@@ -56,6 +56,16 @@ final class ProfileViewController: UIViewController {
         return button
     }()
     
+    private lazy var placeholderImage: UIImage = {
+        UIImage(systemName: "person.circle.fill")?
+            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            .withConfiguration(UIImage.SymbolConfiguration(
+                pointSize: 70,
+                weight: .regular,
+                scale: .large)
+            ) ?? UIImage()
+    }()
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
@@ -126,17 +136,13 @@ final class ProfileViewController: UIViewController {
         
         guard let profileImageURL = ProfileImageService.shared.avatarURL,
               let imageUrl = URL(string: profileImageURL) else {
-            avatarImageView.image = UIImage(systemName: "person.circle.fill")?
-                .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-                .withConfiguration(UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large))
+            avatarImageView.image = placeholderImage
             return
         }
         
         print("imageUrl: \(imageUrl)")
         
-        let placeholderImage = UIImage(systemName: "person.circle.fill")?
-            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large))
+        let placeholderImage = placeholderImage
         
         let processor = RoundCornerImageProcessor(cornerRadius: 35)
         avatarImageView.kf.indicatorType = .activity

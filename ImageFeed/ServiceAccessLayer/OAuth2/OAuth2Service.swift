@@ -38,25 +38,24 @@ final class OAuth2Service {
         }
         
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
-            DispatchQueue.main.async {
-                UIBlockingProgressHUD.dismiss()
-                guard let self else { return }
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self else { return }
+            
+            switch result {
+            case .success(let oAuthToken):
+                OAuth2TokenStorage.shared.token = oAuthToken.accessToken
+                handler(.success(oAuthToken.accessToken))
                 
-                switch result {
-                case .success(let oAuthToken):
-                    OAuth2TokenStorage.shared.token = oAuthToken.accessToken
-                    handler(.success(oAuthToken.accessToken))
-                    
-                    self.task = nil
-                    self.lastCode = nil
-                    
-                case .failure(let error):
-                    print("[OAuth2Service]: Ошибка запроса: \(error.localizedDescription)")
-                    handler(.failure(error))
-                    
-                    self.task = nil
-                    self.lastCode = nil
-                }
+                self.task = nil
+                self.lastCode = nil
+                
+            case .failure(let error):
+                print("[OAuth2Service]: Ошибка запроса: \(error.localizedDescription)")
+                handler(.failure(error))
+                
+                self.task = nil
+                self.lastCode = nil
             }
         }
         

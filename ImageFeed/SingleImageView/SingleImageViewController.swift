@@ -1,29 +1,16 @@
 import UIKit
 
 final class SingleImageViewController: UIViewController {
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded, let image else { return }
-            
-            imageView.image = image
-            imageView.frame.size = image.size
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var imageURL: URL?
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageView.image = image
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
-        
-        guard let image else { return }
-        imageView.image = image
-        imageView.frame.size = image.size
-        rescaleAndCenterImageInScrollView(image: image)
+        showFullImage()
     }
     
     @IBAction private func didTapBackButton() {
@@ -31,12 +18,44 @@ final class SingleImageViewController: UIViewController {
     }
     
     @IBAction private func didTapShareButton(_ sender: UIButton) {
-        guard let image else { return }
+        guard let imageURL else { return }
         let share = UIActivityViewController(
-            activityItems: [image],
+            activityItems: [imageURL],
             applicationActivities: nil
         )
         present(share, animated: true, completion: nil)
+    }
+    
+    private func showFullImage() {
+        guard let imageURL else { return }
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.imageView.frame.size = imageResult.image.size
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure:
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: "Что-то пошло не так. Попробовать ещё раз?",
+            preferredStyle: .alert)
+        let noAction = UIAlertAction(title: "Не надо", style: .cancel, handler: nil)
+        let repeatAction = UIAlertAction(title: "Повторить?", style: .default) { _ in
+            self.showFullImage()
+        }
+        
+        alert.addAction(noAction)
+        alert.addAction(repeatAction)
+        
+        present(alert, animated: true)
     }
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {

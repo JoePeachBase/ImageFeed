@@ -38,6 +38,10 @@ final class ProfileService {
         task.resume()
     }
     
+    func resetProfile() {
+        profile = nil
+    }
+    
     private func makeURLRequest(with token: String) -> URLRequest? {
         guard let url = URL(string: "https://api.unsplash.com/me") else {
             assertionFailure("Failed to create URL")

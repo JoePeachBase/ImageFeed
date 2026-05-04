@@ -1,5 +1,9 @@
 import UIKit
 
+protocol ImagesListCellDelegate: AnyObject {
+    func imageListCellDidTapLike(_ cell: ImagesListCell)
+}
+
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
     
@@ -7,6 +11,8 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet var likeButton: UIButton!
     @IBOutlet var cellImage: UIImageView!
     @IBOutlet var gradientContainerView: UIView!
+    
+    weak var delegate: ImagesListCellDelegate?
     
     private var gradientLayer: CAGradientLayer?
     
@@ -18,6 +24,15 @@ final class ImagesListCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer?.frame = gradientContainerView.bounds
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+    }
+    
+    @IBAction private func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
     }
     
     private func setupGradient() {
@@ -37,5 +52,9 @@ final class ImagesListCell: UITableViewCell {
         self.gradientLayer = gradient
         
         gradientContainerView.layer.insertSublayer(gradient, at: 0)
+    }
+    
+    func setIsLiked(isLiked: Bool) {
+        likeButton.setImage(isLiked ? .likeButtonOn : .likeButtonOff, for: .normal)
     }
 }

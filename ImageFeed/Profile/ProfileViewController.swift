@@ -1,6 +1,13 @@
 import UIKit
 import Kingfisher
 
+private enum AlertStrings {
+    static let title = "Пока, пока!"
+    static let message = "Уверены, что хотите выйти?"
+    static let yesAction = "Да"
+    static let noAction = "Нет"
+}
+
 final class ProfileViewController: UIViewController {
     private lazy var mainStackView: UIStackView = {
         let stack = UIStackView()
@@ -88,7 +95,26 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func logoutButtonDidTapped() {
-        print("logoutButtonDidTapped")
+        let alert = UIAlertController(
+            title: AlertStrings.title,
+            message: AlertStrings.message,
+            preferredStyle: .alert)
+        
+        let yesAction = UIAlertAction(title: AlertStrings.yesAction, style: .default) { _ in
+            ProfileLogoutService.shared.logout()
+            let splashViewController = SplashViewController()
+            guard let window = UIApplication.shared.windows.first else {
+                print("Invalid window configuration")
+                return
+            }
+            window.rootViewController = splashViewController
+        }
+        let noAction = UIAlertAction(title: AlertStrings.noAction, style: .default, handler: nil)
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true)
+        
     }
     
     private func setupLayout() {

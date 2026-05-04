@@ -52,6 +52,10 @@ final class ProfileImageService {
         task.resume()
     }
     
+    func resetProfileAvatar() {
+        avatarURL = nil
+    }
+    
     private func makeProfileImageRequest(username: String, token: String) -> URLRequest? {
         guard let url = URL(string: "https://api.unsplash.com/users/\(username)") else {
             assertionFailure("Failed to create URL")

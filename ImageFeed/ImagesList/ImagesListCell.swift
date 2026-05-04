@@ -54,7 +54,7 @@ final class ImagesListCell: UITableViewCell {
         gradientContainerView.layer.insertSublayer(gradient, at: 0)
     }
     
-    func setIsLiked(isLiked: Bool) {
+    func setLiked(_ isLiked: Bool) {
         likeButton.setImage(isLiked ? .likeButtonOn : .likeButtonOff, for: .normal)
     }
 }

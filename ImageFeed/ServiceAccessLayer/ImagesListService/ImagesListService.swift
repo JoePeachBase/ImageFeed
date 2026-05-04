@@ -1,6 +1,6 @@
 import Foundation
 
-class ImagesListService {
+final class ImagesListService {
     static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     

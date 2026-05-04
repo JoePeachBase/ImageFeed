@@ -54,10 +54,12 @@ final class ImagesListViewController: UIViewController {
     private func updateTableViewAnimated() {
         let newCount = ImagesListService.shared.photos.count
         let oldCount = photos.count
-        guard newCount > oldCount else { return tableView.reloadData() }
+        guard newCount > oldCount else {
+            return tableView.reloadData()
+        }
         
-        let indexPaths = (oldCount..<newCount).map { i in
-            IndexPath(row: i, section: 0)
+        let indexPaths = (oldCount..<newCount).map { row in
+            IndexPath(row: row, section: 0)
         }
         
         tableView.performBatchUpdates {
@@ -144,7 +146,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
             switch result {
             case .success:
                 DispatchQueue.main.async {
-                    cell.setIsLiked(isLiked: !photo.isLiked)
+                    cell.setLiked(!photo.isLiked)
                     self.photos = ImagesListService.shared.photos
                 }
                 UIBlockingProgressHUD.dismiss()

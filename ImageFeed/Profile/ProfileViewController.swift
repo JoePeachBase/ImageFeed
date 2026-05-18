@@ -1,6 +1,14 @@
 import UIKit
 import Kingfisher
 
+public protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfilePresenterProtocol? { get set }
+    func setName(_ name: String)
+    func setLoginName(_ loginName: String)
+    func setDescription(_ description: String)
+    func setAvatarImage(_ image: UIImage?)
+}
+
 private enum AlertStrings {
     static let title = "Пока, пока!"
     static let message = "Уверены, что хотите выйти?"
@@ -8,7 +16,9 @@ private enum AlertStrings {
     static let noAction = "Нет"
 }
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
+    var presenter: ProfilePresenterProtocol?
+    
     private lazy var mainStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
@@ -59,39 +69,33 @@ final class ProfileViewController: UIViewController {
             target: self,
             action: #selector(logoutButtonDidTapped))
         button.tintColor = UIColor(hex: 0xF56B6C)
+        button.accessibilityIdentifier = "logout button"
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
-    private lazy var placeholderImage: UIImage = {
-        UIImage(systemName: "person.circle.fill")?
-            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-            .withConfiguration(UIImage.SymbolConfiguration(
-                pointSize: 70,
-                weight: .regular,
-                scale: .large)
-            ) ?? UIImage()
-    }()
-    
-    private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(hex: 0x1A1B22)
         setupLayout()
         setupConstraints()
-        if let profile = ProfileService.shared.profile {
-            updateProfileDetails(profile: profile)
-        }
-        profileImageServiceObserver = NotificationCenter.default.addObserver(
-            forName: ProfileImageService.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.updateAvatar()
-        }
-        updateAvatar()
+        presenter?.viewDidLoad()
+    }
+    
+    func setName(_ name: String) {
+        nameLabel.text = name
+    }
+    
+    func setLoginName(_ loginName: String) {
+        loginNameLabel.text = loginName
+    }
+    
+    func setDescription(_ description: String) {
+        descriptionLabel.text = description
+    }
+    
+    func setAvatarImage(_ image: UIImage?) {
+        avatarImageView.image = image
     }
     
     @objc private func logoutButtonDidTapped() {
@@ -99,26 +103,24 @@ final class ProfileViewController: UIViewController {
             title: AlertStrings.title,
             message: AlertStrings.message,
             preferredStyle: .alert)
+        alert.view.accessibilityIdentifier = "Bye bye!"
         
-        let yesAction = UIAlertAction(title: AlertStrings.yesAction, style: .default) { _ in
-            ProfileLogoutService.shared.logout()
-            let splashViewController = SplashViewController()
-            guard let window = UIApplication.shared.windows.first else {
-                print("Invalid window configuration")
-                return
-            }
-            window.rootViewController = splashViewController
+        let yesAction = UIAlertAction(title: AlertStrings.yesAction, style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.presenter?.clean()
+            self.goToSplashViewController()
         }
         let noAction = UIAlertAction(title: AlertStrings.noAction, style: .default, handler: nil)
         alert.addAction(yesAction)
         alert.addAction(noAction)
-        
+        alert.actions.first?.accessibilityIdentifier = "Yes"
         present(alert, animated: true)
         
     }
     
     private func setupLayout() {
         let innerStackView = UIStackView()
+        innerStackView.translatesAutoresizingMaskIntoConstraints = false
         let spacer = UIView()
         spacer.translatesAutoresizingMaskIntoConstraints = false
         
@@ -145,51 +147,12 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func updateProfileDetails(profile: Profile) {
-        nameLabel.text = profile.name.isEmpty
-        ? "Имя не указано"
-        : profile.name
-        loginNameLabel.text = profile.loginName.isEmpty
-        ? "@неизвестный_пользователь"
-        : profile.loginName
-        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
-        ? "Профиль не заполнен"
-        : profile.bio
-    }
-    
-    private func updateAvatar() {
-        print("avatarURL: \(String(describing: ProfileImageService.shared.avatarURL))")
-        
-        guard let profileImageURL = ProfileImageService.shared.avatarURL,
-              let imageUrl = URL(string: profileImageURL) else {
-            avatarImageView.image = placeholderImage
+    private func goToSplashViewController() {
+        let splashViewController = SplashViewController()
+        guard let window = UIApplication.shared.windows.first else {
+            print("Invalid window configuration")
             return
         }
-        
-        print("imageUrl: \(imageUrl)")
-        
-        let placeholderImage = placeholderImage
-        
-        let processor = RoundCornerImageProcessor(cornerRadius: 35)
-        avatarImageView.kf.indicatorType = .activity
-        avatarImageView.kf.setImage(
-            with: imageUrl,
-            placeholder: placeholderImage,
-            options: [
-                .processor(processor),
-                .scaleFactor(UIScreen.main.scale),
-                .cacheOriginalImage,
-                .forceRefresh
-            ]) { result in
-                
-                switch result {
-                case .success(let value):
-                    print(value.image)
-                    print(value.cacheType)
-                    print(value.source)
-                case .failure(let error):
-                    print(error)
-                }
-            }
+        window.rootViewController = splashViewController
     }
 }

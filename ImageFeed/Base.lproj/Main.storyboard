@@ -49,6 +49,7 @@
                                                 </label>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rEw-8h-xf7">
                                                     <rect key="frame" x="342" y="4" width="44" height="44"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="like button"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="44" id="KhD-WX-Mkk"/>
                                                         <constraint firstAttribute="width" constant="44" id="iqL-hL-nEh"/>
@@ -221,6 +222,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jdC-Nn-VCH">
                                 <rect key="frame" x="16" y="702" width="370" height="48"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="VS1-GN-nsu"/>
                                 </constraints>
@@ -250,6 +252,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="4F1-Um-8tv"/>
+                    <connections>
+                        <outlet property="signInButton" destination="jdC-Nn-VCH" id="uWx-69-Cnk"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hsz-6D-oYl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -258,7 +263,7 @@
         <!--Web View View Controller-->
         <scene sceneID="PLz-ze-sqS">
             <objects>
-                <viewController id="Yky-Ms-ZUW" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="Yky-Ms-ZUW" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5Jc-Hz-fGB">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -278,6 +283,7 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="tP4-ML-jz4"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <accessibility key="accessibilityConfiguration" identifier="UnsplashWebView"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="stZ-Dn-k1c" secondAttribute="trailing" id="88f-5g-lDX"/>
                             <constraint firstItem="stZ-Dn-k1c" firstAttribute="top" secondItem="tP4-ML-jz4" secondAttribute="top" id="IFB-pk-IRn"/>

@@ -1,110 +1,143 @@
 @testable import ImageFeed
-import Foundation
 import UIKit
 import XCTest
 
 final class ImagesListTests: XCTestCase {
-    func testViewControllerCallsViewDidLoad() {
-        //given
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewController = storyboard.instantiateViewController(withIdentifier: "ImagesListViewController") as! ImagesListViewController
-        let presenter = ImagesListPresenterSpy()
-        viewController.presenter = presenter
+    
+    // MARK: - Properties
+    
+    private var storyboard: UIStoryboard!
+    private var viewController: ImagesListViewController!
+    private var presenterSpy: ImagesListPresenterSpy!
+    
+    // MARK: - Lifecycle
+    
+    override func setUp() {
+        super.setUp()
         
-        //when
+        storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        viewController = storyboard.instantiateViewController(
+            withIdentifier: "ImagesListViewController"
+        ) as? ImagesListViewController
+        
+        presenterSpy = ImagesListPresenterSpy()
+        
+        viewController.presenter = presenterSpy
+        presenterSpy.view = viewController
+    }
+    
+    override func tearDown() {
+        storyboard = nil
+        viewController = nil
+        presenterSpy = nil
+        
+        super.tearDown()
+    }
+    
+    // MARK: - Tests
+    
+    func testViewControllerCallsViewDidLoad() {
+        // Given
+        
+        // When
         _ = viewController.view
         
-        //then
-        XCTAssertTrue(presenter.viewDidLoadCalled)
+        // Then
+        XCTAssertTrue(presenterSpy.viewDidLoadCalled)
     }
     
     func testPresenterCallsUpdateTableView() {
-        //given
+        // Given
         let viewController = ImagesListViewControllerSpy()
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         viewController.presenter = presenter
         presenter.view = viewController
         
-        //when
+        // When
         presenter.viewDidLoad()
         serviceMock.fetchPhotosNextPage()
         
-        //then
+        // Then
         XCTAssertTrue(viewController.updateTableViewAnimatedCalled)
     }
     
     func testPresenterCallsFetchPhotos() {
-        //given
+        // Given
         let viewController = ImagesListViewControllerSpy()
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         viewController.presenter = presenter
         presenter.view = viewController
         
-        //when
+        // When
         presenter.viewDidLoad()
         
-        //then
+        // Then
         XCTAssertTrue(serviceMock.fetchPhotosNextPageCalled)
     }
     
     func testPhotosCountReturnsZeroInitially() {
+        // Given
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         
+        // When
+        
+        // Then
         XCTAssertEqual(presenter.photosCount(), 0)
     }
     
     func testPhotoAtIndexReturnsCorrectPhoto() {
-        // given
+        // Given
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         serviceMock.photos = [Photo(id: "test-42")]
         
-        // when
+        // When
         let photo = presenter.photo(at: 0)
         
-        // then
+        // Then
         XCTAssertEqual(photo.id, "test-42")
     }
     
     func testLargeImageURLReturnsValidURL() {
-        // given
+        // Given
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         let expectedURL = URL(string: "https://example.com/large.jpg")
         serviceMock.photos = [Photo(id: "test-1", largeImageURL: "https://example.com/large.jpg")]
         
-        // when
+        // When
         let url = presenter.largeImageURL(at: 0)
         
-        // then
+        // Then
         XCTAssertEqual(url, expectedURL)
     }
 
     func testLargeImageURLReturnsNilForInvalidURL() {
-        // given
+        // Given
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         serviceMock.photos = [Photo(id: "test-1", largeImageURL: "not-a-url")]
         
-        // when
+        // When
         let url = presenter.largeImageURL(at: 0)
         
-        // then
+        // Then
         XCTAssertNil(url)
     }
 
     func testSetLikeCallsServiceChangeLike() {
-        // given
+        // Given
         let serviceMock = ImagesListServiceMock()
         let presenter = ImagesListPresenter(imagesListService: serviceMock)
         let photoId = "photo-42"
         let isLike = true
         var completionCalled = false
         
-        // when
+        // When
         presenter.setLike(photoId: photoId, isLike: isLike) { result in
             if case .success = result {
                 completionCalled = true
@@ -113,109 +146,9 @@ final class ImagesListTests: XCTestCase {
         
         serviceMock.changeLikeCompletion?(.success(()))
         
-        // then
+        // Then
         XCTAssertTrue(serviceMock.changeLikeCalled)
         XCTAssertTrue(completionCalled)
-    }
-}
-
-final class ImagesListPresenterSpy: ImagesListPresenterProtocol {
-    var viewDidLoadCalled: Bool = false
-    var view: ImagesListViewControllerProtocol?
-    var photosCountToReturn = 0
-    var stubPhotos: [Photo] = []
-    var largeImageURLToReturn: URL?
-    var fetchPhotosNextPageCalled = false
-    var fetchPhotosNextPageCallCount = 0
-    var setLikeCalled = false
-    var setLikePhotoId: String?
-    var setLikeIsLike: Bool?
-    var setLikeCompletionResult: Result<Void, Error>?
-    
-    func viewDidLoad() {
-        viewDidLoadCalled = true
-    }
-    
-    func photosCount() -> Int {
-        photosCountToReturn
-    }
-    
-    func photo(at index: Int) -> ImageFeed.Photo {
-        guard index < stubPhotos.count else {
-            fatalError("Spy: index out of range in photo(at:)")
-        }
-        return stubPhotos[index]
-    }
-    
-    func largeImageURL(at index: Int) -> URL? {
-        largeImageURLToReturn
-    }
-    
-    func fetchPhotosNextPage() {
-        fetchPhotosNextPageCalled = true
-        fetchPhotosNextPageCallCount += 1
-    }
-    
-    func setLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, any Error>) -> Void) {
-        setLikeCalled = true
-        setLikePhotoId = photoId
-        setLikeIsLike = isLike
-        if let result = setLikeCompletionResult {
-            completion(result)
-        }
-    }
-}
-
-final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
-    var presenter: ImagesListPresenterProtocol?
-    var updateTableViewAnimatedCalled = false
-    
-    func updateTableViewAnimated() {
-        updateTableViewAnimatedCalled = true
-    }
-}
-
-final class ImagesListServiceMock: ImagesListServiceProtocol {
-    var photos: [Photo] = []
-    var fetchPhotosNextPageCalled = false
-    var changeLikeCalled = false
-    var changeLikeCompletion: ((Result<Void, Error>) -> Void)?
-    
-    func fetchPhotosNextPage() {
-        fetchPhotosNextPageCalled = true
-        
-        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
-    }
-    
-    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, any Error>) -> Void) {
-        changeLikeCalled = true
-        changeLikeCompletion = completion
-    }
-}
-
-extension Photo {
-    init(id: String) {
-        self.init(
-            id: id,
-            size: CGSize(width: 100, height: 200),
-            createdAt: nil,
-            welcomeDescription: nil,
-            thumbImageURL: "https://example.com/thumb.jpg",
-            largeImageURL: "https://example.com/large.jpg",
-            isLiked: false
-        )
-    }
-    
-    init(id: String, largeImageURL: String) {
-        self.init(
-            id: id,
-            size: CGSize(width: 100, height: 200),
-            createdAt: nil,
-            welcomeDescription: nil,
-            thumbImageURL: "https://example.com/thumb.jpg",
-            largeImageURL: largeImageURL,
-            isLiked: false
-        )
     }
 }
 

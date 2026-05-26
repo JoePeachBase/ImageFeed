@@ -1,121 +1,120 @@
 @testable import ImageFeed
-import Foundation
 import UIKit
 import XCTest
 
 final class ProfileTest: XCTestCase {
-    func testViewControllerCallsViewDidLoad(){
-        //given
-        let viewController = ProfileViewController()
-        let presenter = ProfilePresenterSpy()
-        viewController.presenter = presenter
-        presenter.view = viewController
+    
+    // MARK: - Properties
+    
+    private var viewController: ProfileViewController!
+    private var presenterSpy: ProfilePresenterSpy!
+    
+    // MARK: - Lifecycle
+    
+    override func setUp() {
+        super.setUp()
         
-        //when
+        viewController = ProfileViewController()
+        presenterSpy = ProfilePresenterSpy()
+        
+        viewController.presenter = presenterSpy
+        presenterSpy.view = viewController
+    }
+    
+    override func tearDown() {
+        viewController = nil
+        presenterSpy = nil
+        
+        super.tearDown()
+    }
+    
+    func testViewControllerCallsViewDidLoad(){
+        // Given
+//        let viewController = ProfileViewController()
+//        let presenter = ProfilePresenterSpy()
+//        viewController.presenter = presenter
+//        presenter.view = viewController
+        
+        // When
         _ = viewController.view
         
-        //then
-        XCTAssertTrue(presenter.viewDidLoadCalled)
+        // Then
+        XCTAssertTrue(presenterSpy.viewDidLoadCalled)
     }
     
     func testPresenterCallsUpdateAvatar() {
-        let viewController = ProfileViewController()
-        let presenter = ProfilePresenterSpy()
-        viewController.presenter = presenter
-        presenter.view = viewController
+        // Given
+//        let viewController = ProfileViewController()
+//        let presenter = ProfilePresenterSpy()
+//        viewController.presenter = presenter
+//        presenter.view = viewController
 
-        presenter.updateAvatar()
+        // When
+        presenterSpy.updateAvatar()
 
-        XCTAssertTrue(presenter.update)
+        //Then
+        XCTAssertTrue(presenterSpy.update)
     }
     
     func testPresenterCallsCleanServices() {
-        let viewController = ProfileViewController()
-        let presenter = ProfilePresenterSpy()
-        viewController.presenter = presenter
-        presenter.view = viewController
+        // Given
+//        let viewController = ProfileViewController()
+//        let presenter = ProfilePresenterSpy()
+//        viewController.presenter = presenter
+//        presenter.view = viewController
 
-        presenter.clean()
+        // When
+        presenterSpy.clean()
 
-        XCTAssertTrue(presenter.cleanServices)
+        // Then
+        XCTAssertTrue(presenterSpy.cleanServices)
     }
     
     func testViewControllerCallsSetName() {
+        // Given
         let presenter = ProfilePresenterSpy()
         let view = ProfileViewControllerSpy(presenter: presenter)
+        
+        // When
         view.setName("Ekaterina Novikova")
 
+        // Then
         XCTAssertTrue(view.setName)
     }
 
     func testViewControllerCallsSetLoginName() {
+        // Given
         let presenter = ProfilePresenterSpy()
         let view = ProfileViewControllerSpy(presenter: presenter)
+        
+        // When
         view.setLoginName("ekaterina_nov")
 
+        // Then
         XCTAssertTrue(view.setLoginName)
     }
 
     func testViewControllerCallsSetDescription() {
+        // Given
         let presenter = ProfilePresenterSpy()
         let view = ProfileViewControllerSpy(presenter: presenter)
+        
+        // When
         view.setDescription("Description")
 
+        // Then
         XCTAssertTrue(view.setDescription)
     }
 
     func testViewControllerCallsSetAvatarImage() {
+        // Given
         let presenter = ProfilePresenterSpy()
         let view = ProfileViewControllerSpy(presenter: presenter)
+        
+        // When
         view.setAvatarImage(UIImage(named: "avatarImage"))
 
+        // Then
         XCTAssertTrue(view.setAvatarImage)
-    }
-}
-
-final class ProfilePresenterSpy: ProfilePresenterProtocol {
-    var view: ProfileViewControllerProtocol?
-    var viewDidLoadCalled: Bool = false
-    var update: Bool = false
-    var cleanServices: Bool = false
-    
-    
-    func viewDidLoad() {
-        viewDidLoadCalled = true
-    }
-    
-    func updateAvatar() {
-        update = true
-    }
-    
-    func clean() {
-        cleanServices = true
-    }
-}
-
-final class ProfileViewControllerSpy: ProfileViewControllerProtocol {
-    var presenter: ImageFeed.ProfilePresenterProtocol?
-    init(presenter: ProfilePresenterProtocol) {
-        self.presenter = presenter
-    }
-    var setName = false
-    var setLoginName = false
-    var setDescription = false
-    var setAvatarImage = false
-    
-    func setName(_ name: String) {
-        setName = true
-    }
-    
-    func setLoginName(_ loginName: String) {
-        setLoginName = true
-    }
-    
-    func setDescription(_ description: String) {
-        setDescription = true
-    }
-    
-    func setAvatarImage(_ image: UIImage?) {
-        setAvatarImage = true
     }
 }

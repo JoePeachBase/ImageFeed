@@ -253,7 +253,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="4F1-Um-8tv"/>
                     <connections>
-                        <outlet property="signInButton" destination="jdC-Nn-VCH" id="uWx-69-Cnk"/>
+                        <outlet property="authenticateButton" destination="jdC-Nn-VCH" id="uWx-69-Cnk"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hsz-6D-oYl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

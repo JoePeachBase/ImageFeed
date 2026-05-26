@@ -6,33 +6,38 @@ protocol AuthViewControllerDelegate: AnyObject {
 }
 
 final class AuthViewController: UIViewController {
-    @IBOutlet private var signInButton: UIButton!
+    @IBOutlet private weak var authenticateButton: UIButton!
     
     private let showWebViewSegueIdentifier = "ShowWebView"
-    private let oauth2Service = OAuth2Service.shared
+    private let authService = OAuth2Service.shared
     
     weak var delegate: AuthViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureBackButton()
-        signInButton.accessibilityIdentifier = "Authenticate"
+        authenticateButton.accessibilityIdentifier = "Authenticate"
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebViewSegueIdentifier {
-            guard let webViewViewController = segue.destination as? WebViewViewController else {
-                assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
-                return
-            }
-            let authHelper = AuthHelper()
-            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
-            webViewViewController.presenter = webViewPresenter
-            webViewPresenter.view = webViewViewController
-            webViewViewController.delegate = self
-        } else {
+        guard segue.identifier == showWebViewSegueIdentifier else {
             super.prepare(for: segue, sender: sender)
+            return
         }
+        
+        guard let webViewViewController = segue.destination as? WebViewViewController else {
+            assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
+            return
+        }
+        
+        let authHelper = AuthHelper()
+        let webViewPresenter = WebViewPresenter(
+            authHelper: authHelper
+        )
+        
+        webViewViewController.presenter = webViewPresenter
+        webViewPresenter.view = webViewViewController
+        webViewViewController.delegate = self
     }
     
     private func configureBackButton() {
@@ -46,7 +51,7 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         UIBlockingProgressHUD.show()
-        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+        authService.fetchOAuthToken(code: code) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
             guard let self else { return }
             
@@ -87,7 +92,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
 
 extension AuthViewController {
     private func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        oauth2Service.fetchOAuthToken(code: code) { result in
+        authService.fetchOAuthToken(code: code) { result in
             completion(result)
         }
     }
